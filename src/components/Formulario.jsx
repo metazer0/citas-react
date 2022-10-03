@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import Error from './Error'
 
-const Formulario = ({pacientes,setPacientes}) => {
+const Formulario = ({pacientes,setPacientes,paciente,setPaciente}) => {
 
     const [nombre, setNombre] = useState('')
     const [apellido, setApellido] = useState('')
@@ -10,6 +10,16 @@ const Formulario = ({pacientes,setPacientes}) => {
     const [sintomas, setSintomas] = useState('')
 
     const [error, setError] = useState(false)
+
+    useEffect(() =>{
+        if(Object.keys(paciente).length > 0){
+            setNombre(paciente.nombre)
+            setApellido(paciente.apellido)
+            setEmail(paciente.email)
+            setFecha(paciente.fecha)
+            setSintomas(paciente.sintomas)
+        }
+    },[paciente])
 
     const generarId = () => {
         const random = Math.random().toString(36).substring(2)
@@ -32,16 +42,25 @@ const Formulario = ({pacientes,setPacientes}) => {
             const objetoPaciente = {
                 nombre,
                 apellido,
-                nombreCompleto: nombre+' '+apellido,
                 email,
                 fecha,
                 sintomas,
-                id: generarId()
+            }
+
+            if(paciente.id){
+                objetoPaciente.id = paciente.id
+
+                const pacientesActualizados = pacientes.map(pacienteState => pacienteState.id === paciente.id ? objetoPaciente : pacienteState)
+
+                setPacientes(pacientesActualizados)
+                setPaciente({})
+            }else{
+                objetoPaciente.id = generarId()
+                setPacientes([...pacientes,objetoPaciente])
             }
 
             // console.log(objetoPaciente.nombreCompleto)
 
-            setPacientes([...pacientes,objetoPaciente])
             
             //Reiniciar form
 
@@ -123,7 +142,7 @@ const Formulario = ({pacientes,setPacientes}) => {
         </div>
         
         <input 
-        value="Agregar Paciente" type="submit" 
+        value={paciente.id ? "Editar Paciente" : "Agregar Paciente" }type="submit" 
         className="bg-indigo-600  w-full p-3 rounded-lg text-white font-bold hover:bg-indigo-700 cursor-pointer transition-all"/>
 
        </form>
